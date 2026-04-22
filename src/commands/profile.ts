@@ -209,7 +209,9 @@ async function generateSSHKey(id: string, email: string): Promise<string> {
     console.log(chalk.gray('--------------------------------------------------'));
     console.log(pubKey.trim());
     console.log(chalk.gray('--------------------------------------------------'));
-    console.log(chalk.dim('\nSettings > SSH and GPG keys > New SSH key (Select "Signing Key" for the "Verified" badge)\n'));
+    console.log(chalk.yellow('\n1. Add as "Authentication Key" to allow PUSH/PULL access.'));
+    console.log(chalk.yellow('2. Add as "Signing Key" to get the "Verified" badge.'));
+    console.log(chalk.dim('\nSettings > SSH and GPG keys > New SSH key\n'));
     return sshKeyPath;
   } catch (error: any) {
     spinner.fail(chalk.red('Failed to generate key.'));
@@ -390,7 +392,9 @@ async function showPublicKey(manager: ProfileManager) {
     console.log(chalk.gray('--------------------------------------------------'));
     console.log(pubKey.trim());
     console.log(chalk.gray('--------------------------------------------------'));
-    console.log(chalk.dim('\nSettings > SSH and GPG keys > New SSH key (Select "Signing Key" for the "Verified" badge)\n'));
+    console.log(chalk.yellow('\n1. Add as "Authentication Key" to allow PUSH/PULL access.'));
+    console.log(chalk.yellow('2. Add as "Signing Key" to get the "Verified" badge.'));
+    console.log(chalk.dim('\nSettings > SSH and GPG keys > New SSH key\n'));
   } else {
     console.log(chalk.red(`\nError: Public key file not found at ${pubKeyPath}`));
   }
