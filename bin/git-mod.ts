@@ -12,12 +12,16 @@ import { profileCommand } from '../src/commands/profile.ts';
 import { remoteCommand } from '../src/commands/remote.ts';
 import { logger } from '../src/utils/logger.ts';
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json');
+
 const program = new Command();
 
 program
   .name('git-mod')
   .description('A mod for git')
-  .version('1.0.0');
+  .version(pkg.version);
 
 // Register commands
 program
