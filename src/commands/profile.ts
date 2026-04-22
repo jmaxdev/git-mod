@@ -147,7 +147,7 @@ async function addProfile(manager: ProfileManager) {
       console.log(chalk.gray('--------------------------------------------------'));
       console.log(pubKey.trim());
       console.log(chalk.gray('--------------------------------------------------'));
-      console.log(chalk.dim('\nSettings > SSH and GPG keys > New SSH key\n'));
+      console.log(chalk.dim('\nSettings > SSH and GPG keys > New SSH key (Select "Signing Key" for the "Verified" badge)\n'));
       
     } catch (error: any) {
       spinner.fail(chalk.red(`Failed to generate key: ${error.message}`));
@@ -222,6 +222,7 @@ async function showPublicKey(manager: ProfileManager) {
     console.log(chalk.gray('--------------------------------------------------'));
     console.log(pubKey.trim());
     console.log(chalk.gray('--------------------------------------------------'));
+    console.log(chalk.dim('\nSettings > SSH and GPG keys > New SSH key (Select "Signing Key" for the "Verified" badge)\n'));
   } else {
     console.log(chalk.red(`\nError: Public key file not found at ${pubKeyPath}`));
   }

@@ -13,7 +13,7 @@ Effortlessly switch between multiple Git accounts (Work, Personal, Client, etc.)
 - **No URL Aliases Needed**: Keep using standard URLs like `git@github.com:user/repo.git`. No need to change them to `git@github-work:...`.
 - **Localized Config**: Applies identity (`user.name`, `user.email`) locally to the repository.
 - **Smart SSH Isolation**: Uses `core.sshCommand` to ensure each repo uses the correct private key without global SSH config hacks.
-- **Native Signing**: Support for SSH-based commit signing for that "Verified" badge on GitHub.
+- **Native Signing**: Support for SSH-based commit signing for that "Verified" badge on GitHub. (Requires uploading your public key to GitHub as a **Signing Key**).
 - **Key Generation**: Built-in wizard to generate secure Ed25519 keys with standard `git_` prefixes.
 
 > [!TIP]
