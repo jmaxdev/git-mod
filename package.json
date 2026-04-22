@@ -1,7 +1,15 @@
 {
   "name": "git-mod",
   "version": "1.0.0",
-  "description": "",
+  "description": "A powerful CLI supercharger for Git, designed to streamline advanced workflows and manage multiple identities.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmaxdev/git-mod.git"
+  },
+  "homepage": "https://github.com/jmaxdev/git-mod#readme",
+  "bugs": {
+    "url": "https://github.com/jmaxdev/git-mod/issues"
+  },
   "main": "dist/git-mod.js",
   "bin": {
     "git-mod": "dist/git-mod.js"
