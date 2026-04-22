@@ -9,15 +9,19 @@ It wraps complex Git operations into friendly, interactive commands while adding
 ## 🌟 Key Features
 
 ### 👤 Identity Profiles (`git mod profile`)
-Effortlessly switch between multiple Git accounts (Work, Personal, Client, etc.).
+- **Interactive Management**: Add, edit, list, and delete profiles through a friendly interactive menu.
 - **No URL Aliases Needed**: Keep using standard URLs like `git@github.com:user/repo.git`. No need to change them to `git@github-work:...`.
-- **Localized Config**: Applies identity (`user.name`, `user.email`) locally to the repository.
+- **Localized Config**: Applies identity (`user.name`, `user.email`) locally to the repository or globally.
 - **Smart SSH Isolation**: Uses `core.sshCommand` to ensure each repo uses the correct private key without global SSH config hacks.
 - **Native Signing**: Support for SSH-based commit signing for that "Verified" badge on GitHub. (Requires uploading your public key to GitHub as a **Signing Key**).
-- **Key Generation**: Built-in wizard to generate secure Ed25519 keys with standard `git_` prefixes.
+- **Dynamic Key Generation**: Built-in wizard to generate secure Ed25519 keys with unique IDs and automatic cleanup of old keys when replaced.
+- **Immediate Sync**: Option to apply profile changes to your repository immediately after editing.
 
 > [!TIP]
 > **The Identity Advantage**: Unlike the traditional method that requires editing `~/.ssh/config` and using custom Host aliases, **Git-Mod** overrides the SSH command at the repository level. This means you can have different identities for different projects while using the exact same remote URLs.
+
+> [!TIP]
+> **Privacy First**: If you want to keep your email private on GitHub, use your GitHub-provided "noreply" email (e.g., `123456+username@users.noreply.github.com`). You can find this in your GitHub **Settings > Emails**.
 
 
 ### 🚀 Smart Initialization (`git mod init`)
