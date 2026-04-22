@@ -13,7 +13,7 @@ It wraps complex Git operations into friendly, interactive commands while adding
 - **No URL Aliases Needed**: Keep using standard URLs like `git@github.com:user/repo.git`. No need to change them to `git@github-work:...`.
 - **Localized Config**: Applies identity (`user.name`, `user.email`) locally to the repository or globally.
 - **Smart SSH Isolation**: Uses `core.sshCommand` to ensure each repo uses the correct private key without global SSH config hacks.
-- **Native Signing**: Support for SSH-based commit signing for that "Verified" badge on GitHub. (Requires uploading your public key to GitHub as a **Signing Key**).
+- **Native Signing**: Support for SSH-based commit signing for that "Verified" badge on GitHub. (Requires uploading your public key to GitHub as an **Authentication Key** for push access, and as a **Signing Key** for the badge).
 - **Dynamic Key Generation**: Built-in wizard to generate secure Ed25519 keys with unique IDs and automatic cleanup of old keys when replaced.
 - **Immediate Sync**: Option to apply profile changes to your repository immediately after editing.
 
