@@ -104,9 +104,9 @@ async function useProfile(manager: ProfileManager, engine: GitEngine) {
 
 async function addProfile(manager: ProfileManager) {
   const basicInfo = await inquirer.prompt([
-    { type: 'input', name: 'id', message: 'Profile ID (e.g., work, personal):', validate: input => !!input },
-    { type: 'input', name: 'name', message: 'Git user.name:', validate: input => !!input },
-    { type: 'input', name: 'email', message: 'Git user.email:', validate: input => !!input }
+    { type: 'input', name: 'id', message: 'Profile ID (e.g., work, personal):', validate: input => !!input, filter: val => val.trim() },
+    { type: 'input', name: 'name', message: 'Git user.name:', validate: input => !!input, filter: val => val.trim() },
+    { type: 'input', name: 'email', message: 'Git user.email:', validate: input => !!input, filter: val => val.trim() }
   ]);
 
   const { sshAction } = await inquirer.prompt([
@@ -127,7 +127,7 @@ async function addProfile(manager: ProfileManager) {
   if (sshAction === 'generate') {
     const defaultPath = path.join(os.homedir(), '.ssh', `git_id_ed25519_${basicInfo.id}`);
     const { customPath } = await inquirer.prompt([
-      { type: 'input', name: 'customPath', message: 'Save key to:', default: defaultPath }
+      { type: 'input', name: 'customPath', message: 'Save key to:', default: defaultPath, filter: val => val.trim() }
     ]);
     
     sshKeyPath = customPath;
@@ -155,7 +155,7 @@ async function addProfile(manager: ProfileManager) {
     }
   } else if (sshAction === 'existing') {
     const { existingPath } = await inquirer.prompt([
-      { type: 'input', name: 'existingPath', message: 'Path to existing Private Key:' }
+      { type: 'input', name: 'existingPath', message: 'Path to existing Private Key:', filter: val => val.trim() }
     ]);
     sshKeyPath = existingPath;
   }
@@ -267,9 +267,9 @@ async function importProfiles(manager: ProfileManager) {
 
     if (shouldImport) {
       const basicInfo = await inquirer.prompt([
-        { type: 'input', name: 'id', message: `Profile ID for ${keyName}:`, default: keyName.replace('git_id_ed25519_', '').replace('git_', '') },
-        { type: 'input', name: 'name', message: 'Git user.name:', validate: input => !!input },
-        { type: 'input', name: 'email', message: 'Git user.email:', validate: input => !!input }
+        { type: 'input', name: 'id', message: `Profile ID for ${keyName}:`, default: keyName.replace('git_id_ed25519_', '').replace('git_', ''), filter: val => val.trim() },
+        { type: 'input', name: 'name', message: 'Git user.name:', validate: input => !!input, filter: val => val.trim() },
+        { type: 'input', name: 'email', message: 'Git user.email:', validate: input => !!input, filter: val => val.trim() }
       ]);
 
       const { shouldSign } = await inquirer.prompt([

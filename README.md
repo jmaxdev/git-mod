@@ -10,10 +10,15 @@ It wraps complex Git operations into friendly, interactive commands while adding
 
 ### 👤 Identity Profiles (`git mod profile`)
 Effortlessly switch between multiple Git accounts (Work, Personal, Client, etc.).
+- **No URL Aliases Needed**: Keep using standard URLs like `git@github.com:user/repo.git`. No need to change them to `git@github-work:...`.
 - **Localized Config**: Applies identity (`user.name`, `user.email`) locally to the repository.
 - **Smart SSH Isolation**: Uses `core.sshCommand` to ensure each repo uses the correct private key without global SSH config hacks.
 - **Native Signing**: Support for SSH-based commit signing for that "Verified" badge on GitHub.
 - **Key Generation**: Built-in wizard to generate secure Ed25519 keys with standard `git_` prefixes.
+
+> [!TIP]
+> **The Identity Advantage**: Unlike the traditional method that requires editing `~/.ssh/config` and using custom Host aliases, **Git-Mod** overrides the SSH command at the repository level. This means you can have different identities for different projects while using the exact same remote URLs.
+
 
 ### 🚀 Smart Initialization (`git mod init`)
 Don't just `git init`, initialize with intelligence.
@@ -38,6 +43,9 @@ A high-level wizard for `git bisect`. Visually navigate through your recent comm
 
 ### 🌳 Worktree Manager (`git mod worktree`)
 Context switching made easy. List, add, and remove Git worktrees to work on multiple branches simultaneously in different directories.
+
+### 🌐 Remote Manager (`git mod remote`)
+Interactively manage your repository remotes and link them to your identity profiles in one flow.
 
 ---
 
@@ -94,4 +102,16 @@ Run `git mod --help` for a full list of available commands and options.
 - **Git Core**: [simple-git](https://github.com/steveukx/git-js)
 
 ## 📄 License
-This project is licensed under the ISC License.
+This project is licensed under the **UnSetSoft Public License (UPL) 1.0**. See the [LICENSE.md](LICENSE.md) file for details.
+
+## 🤝 Contributing
+Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 👥 Contributors
+
+<a href="https://github.com/jmaxdev/git-mod/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jmaxdev/git-mod" />
+</a>
+
+---
+

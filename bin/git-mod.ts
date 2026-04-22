@@ -9,6 +9,7 @@ import { worktreeCommand } from '../src/commands/worktree.ts';
 import { switchCommand } from '../src/commands/switch.ts';
 import { restoreCommand } from '../src/commands/restore.ts';
 import { profileCommand } from '../src/commands/profile.ts';
+import { remoteCommand } from '../src/commands/remote.ts';
 import { logger } from '../src/utils/logger.ts';
 
 const program = new Command();
@@ -65,6 +66,11 @@ program
   .command('profile')
   .description('Manage multiple git identities (profiles)')
   .action(profileCommand);
+
+program
+  .command('remote')
+  .description('Interactive remote repository manager')
+  .action(remoteCommand);
 
 program.parse(process.argv);
 

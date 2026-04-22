@@ -63,7 +63,8 @@ export async function rescueCommand() {
           type: 'input',
           name: 'branchName',
           message: 'Enter name for the new branch:',
-          validate: (input) => input.length > 0 || 'Branch name cannot be empty.'
+          validate: (input) => input.length > 0 || 'Branch name cannot be empty.',
+          filter: (val) => val.trim()
         }
       ]);
 

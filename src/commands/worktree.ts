@@ -41,7 +41,8 @@ export async function worktreeCommand() {
           type: 'input',
           name: 'branch',
           message: 'Branch name for the new worktree:',
-          validate: (input) => input.length > 0 || 'Branch name cannot be empty.'
+          validate: (input) => input.length > 0 || 'Branch name cannot be empty.',
+          filter: (val) => val.trim()
         }
       ]);
 
@@ -51,7 +52,8 @@ export async function worktreeCommand() {
           type: 'input',
           name: 'worktreePath',
           message: 'Path for the new worktree:',
-          default: defaultPath
+          default: defaultPath,
+          filter: (val) => val.trim()
         }
       ]);
 
