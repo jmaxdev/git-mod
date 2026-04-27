@@ -10,6 +10,11 @@ export interface Profile {
   signCommits?: boolean;
 }
 
+export interface PathMapping {
+  path: string;
+  profileId: string;
+}
+
 export class ProfileManager {
   private configPath: string;
 
@@ -50,5 +55,35 @@ export class ProfileManager {
   deleteProfile(id: string) {
     const profiles = this.getProfiles().filter(p => p.id !== id);
     fs.writeFileSync(this.configPath, JSON.stringify(profiles, null, 2));
+    
+    // Also cleanup mappings
+    const mappings = this.getPathMappings().filter(m => m.profileId !== id);
+    this.savePathMappings(mappings);
+  }
+
+  getPathMappings(): PathMapping[] {
+    const mappingPath = path.join(path.dirname(this.configPath), 'mappings.json');
+    if (!fs.existsSync(mappingPath)) return [];
+    try {
+      return JSON.parse(fs.readFileSync(mappingPath, 'utf-8'));
+    } catch {
+      return [];
+    }
+  }
+
+  savePathMappings(mappings: PathMapping[]) {
+    const mappingPath = path.join(path.dirname(this.configPath), 'mappings.json');
+    fs.writeFileSync(mappingPath, JSON.stringify(mappings, null, 2));
+  }
+
+  getProfileByPath(currentPath: string): string | null {
+    const mappings = this.getPathMappings();
+    const normalizedPath = path.resolve(currentPath).toLowerCase();
+    
+    // Find the most specific (longest) path that matches
+    const matches = mappings.filter(m => normalizedPath.startsWith(path.resolve(m.path).toLowerCase()));
+    if (matches.length === 0) return null;
+    
+    return matches.sort((a, b) => b.path.length - a.path.length)[0].profileId;
   }
 }

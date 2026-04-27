@@ -10,7 +10,19 @@ import { switchCommand } from '../src/commands/switch.ts';
 import { restoreCommand } from '../src/commands/restore.ts';
 import { profileCommand } from '../src/commands/profile.ts';
 import { remoteCommand } from '../src/commands/remote.ts';
+import { stashCommand } from '../src/commands/stash.ts';
+import { sparseCommand } from '../src/commands/sparse.ts';
+import { optimizeCommand } from '../src/commands/optimize.ts';
+import { rollbackCommand } from '../src/commands/rollback.ts';
+import { mergeCommand } from '../src/commands/merge.ts';
+import { commitCommand } from '../src/commands/commit.ts';
+import { checkpointCommand } from '../src/commands/checkpoint.ts';
+import { subtreeCommand } from '../src/commands/subtree.ts';
+import { statusCommand } from '../src/commands/status.ts';
 import { logger } from '../src/utils/logger.ts';
+import { ProfileManager } from '../src/core/profile-manager.ts';
+import { GitEngine } from '../src/core/git-engine.ts';
+import chalk from 'chalk';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -75,6 +87,82 @@ program
   .command('remote')
   .description('Interactive remote repository manager')
   .action(remoteCommand);
+
+program
+  .command('stash')
+  .description('Interactive stash manager: list, create, apply and drop')
+  .action(stashCommand);
+
+program
+  .command('sparse')
+  .description('Wizard for sparse-checkout: optimize large repositories')
+  .action(sparseCommand);
+
+program
+  .command('optimize')
+  .description('Run repository maintenance and cleanup (gc, prune)')
+  .action(optimizeCommand);
+
+program
+  .command('rollback [commit]')
+  .description('Rollback current branch to a specific commit or select from list')
+  .action(rollbackCommand);
+
+program
+  .command('merge')
+  .description('Interactive merge manager with squash option')
+  .action(mergeCommand);
+
+program
+  .command('commit')
+  .description('Conventional Commits wizard: write perfect messages')
+  .action(commitCommand);
+
+program
+  .command('checkpoint')
+  .description('Create a named snapshot of current repository state')
+  .action(checkpointCommand);
+
+program
+  .command('subtree')
+  .description('Interactive subtree manager for external repositories')
+  .action(subtreeCommand);
+
+program
+  .command('status')
+  .description('Fancy repository status dashboard')
+  .action(statusCommand);
+
+async function checkAutoSwitch() {
+  const profileManager = new ProfileManager();
+  const engine = new GitEngine();
+  
+  const targetProfileId = profileManager.getProfileByPath(process.cwd());
+  if (!targetProfileId) return;
+
+  const localEmail = await engine.getLocalConfig('user.email');
+  const profiles = profileManager.getProfiles();
+  const targetProfile = profiles.find(p => p.id === targetProfileId);
+
+  if (targetProfile && targetProfile.email !== localEmail) {
+    console.log(chalk.bold.cyan('🤖 Magic Identity:'));
+    console.log(`   Switching to profile '${chalk.green(targetProfileId)}' for this directory...`);
+    
+    try {
+      await engine.setConfig('user.name', targetProfile.name, 'local');
+      await engine.setConfig('user.email', targetProfile.email, 'local');
+      if (targetProfile.sshKey) {
+        await engine.setSSHCommand(targetProfile.sshKey, 'local');
+      }
+      console.log(chalk.dim('   Done.\n'));
+    } catch (e: any) {
+      console.log(chalk.red(`   Failed to auto-switch: ${e.message}\n`));
+    }
+  }
+}
+
+// Run auto-switch before parsing commands
+await checkAutoSwitch();
 
 program.parse(process.argv);
 

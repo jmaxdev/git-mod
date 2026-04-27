@@ -160,4 +160,111 @@ export class GitEngine {
     const command = `ssh -i "${sshKeyPath.replace(/\\/g, '/')}" -o "IdentitiesOnly=yes" -F /dev/null`;
     await this.setConfig('core.sshCommand', command, scope);
   }
+
+  // --- New Methods ---
+
+  async getStashes(): Promise<any[]> {
+    const log = await this.git.stashList();
+    return log.all.map((s: any, index: number) => ({
+      index,
+      id: `stash@{${index}}`,
+      message: s.message,
+      hash: s.hash,
+      date: s.date
+    }));
+  }
+
+  async stashAction(index: number, action: 'apply' | 'pop' | 'drop') {
+    const id = `stash@{${index}}`;
+    if (action === 'apply') await this.git.stash(['apply', id]);
+    else if (action === 'pop') await this.git.stash(['pop', id]);
+    else if (action === 'drop') await this.git.stash(['drop', id]);
+  }
+
+  async createStash(message: string) {
+    await this.git.stash(['push', '-m', message]);
+  }
+
+  async sparseCheckoutInit() {
+    await this.git.raw(['sparse-checkout', 'set', '--cone']);
+  }
+
+  async sparseCheckoutSet(patterns: string[]) {
+    await this.git.raw(['sparse-checkout', 'set', ...patterns]);
+  }
+
+  async sparseCheckoutList(): Promise<string[]> {
+    try {
+      const output = await this.git.raw(['sparse-checkout', 'list']);
+      return output.split('\n').filter(Boolean);
+    } catch {
+      return [];
+    }
+  }
+
+  async maintenanceRun() {
+    await this.git.raw(['gc', '--prune=now', '--quiet']);
+    try {
+      await this.git.raw(['maintenance', 'run']);
+    } catch {
+      // maintenance might not be available in older git versions
+    }
+  }
+
+  async getGlobalConfig(key: string): Promise<string | null> {
+    try {
+      return await this.git.getConfig(key, 'global').then(res => res.value);
+    } catch {
+      return null;
+    }
+  }
+
+  async rollback(hash: string, mode: 'hard' | 'soft' | 'mixed' = 'mixed') {
+    const flag = `--${mode}`;
+    await this.git.reset([flag, hash]);
+  }
+
+  async squashMerge(branch: string, message?: string) {
+    const args = ['merge', '--squash', branch];
+    await this.git.raw(args);
+    if (message) {
+      await this.git.commit(message);
+    }
+  }
+
+  async merge(branch: string) {
+    await this.git.merge([branch]);
+  }
+
+  async getCommitDetails(hash: string): Promise<any> {
+    const show = await this.git.show([hash, '--stat', '--oneline']);
+    return show;
+  }
+
+  async createCheckpoint(name: string) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const tagName = `checkpoint/${name}-${timestamp}`;
+    await this.git.addTag(tagName);
+    return tagName;
+  }
+
+  async subtreeAdd(prefix: string, remote: string, branch: string) {
+    await this.git.raw(['subtree', 'add', '--prefix', prefix, remote, branch, '--squash']);
+  }
+
+  async subtreePull(prefix: string, remote: string, branch: string) {
+    await this.git.raw(['subtree', 'pull', '--prefix', prefix, remote, branch, '--squash']);
+  }
+
+  async subtreePush(prefix: string, remote: string, branch: string) {
+    await this.git.raw(['subtree', 'push', '--prefix', prefix, remote, branch]);
+  }
+
+  async getDiffStat(): Promise<string> {
+    return await this.git.raw(['diff', '--stat']);
+  }
+
+  async getStagedDiffStat(): Promise<string> {
+    return await this.git.raw(['diff', '--cached', '--stat']);
+  }
 }

@@ -12,6 +12,8 @@ export async function profileCommand() {
   const profileManager = new ProfileManager();
   const engine = new GitEngine();
 
+  await showCurrentStatus(profileManager, engine);
+
   const { action } = await inquirer.prompt([
     {
       type: 'list',
@@ -19,11 +21,12 @@ export async function profileCommand() {
       message: 'Git Identity Profiles:',
       choices: [
         { name: '👤 Use a profile in this repo', value: 'use' },
-        { name: '➕ Add new profile', value: 'add' },
-        { name: '🔍 Scan & Import keys (git_*)', value: 'import' },
         { name: '📋 List profiles', value: 'list' },
-        { name: '🔑 Show Public Key', value: 'showKey' },
+        { name: '🤖 Manage Path Mappings (Auto-Switch)', value: 'mappings' },
+        { name: '🔍 Scan & Import keys (git_*)', value: 'import' },
+        { name: '➕ Add new profile', value: 'add' },
         { name: '📝 Edit profile', value: 'edit' },
+        { name: '🔑 Show Public Key', value: 'showKey' },
         { name: '❌ Delete profile', value: 'delete' },
         { name: '🚪 Exit', value: 'exit' }
       ]
@@ -52,6 +55,79 @@ export async function profileCommand() {
     case 'delete':
       await deleteProfile(profileManager);
       break;
+    case 'mappings':
+      await manageMappings(profileManager);
+      break;
+  }
+}
+
+async function manageMappings(manager: ProfileManager) {
+  const { mappingAction } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'mappingAction',
+      message: 'Magic Identity Mappings:',
+      choices: [
+        { name: '➕ Add new mapping', value: 'add' },
+        { name: '📋 List current mappings', value: 'list' },
+        { name: '❌ Remove a mapping', value: 'remove' },
+        { name: '🚪 Back', value: 'back' }
+      ]
+    }
+  ]);
+
+  if (mappingAction === 'back') return;
+
+  const mappings = manager.getPathMappings();
+
+  if (mappingAction === 'list') {
+    if (mappings.length === 0) {
+      console.log(chalk.yellow('\nNo mappings found.'));
+    } else {
+      console.log(chalk.bold.cyan('\nPath Mappings:'));
+      mappings.forEach(m => console.log(`${chalk.green('•')} ${m.path} -> ${chalk.bold(m.profileId)}`));
+    }
+    return;
+  }
+
+  if (mappingAction === 'add') {
+    const profiles = manager.getProfiles();
+    if (profiles.length === 0) {
+      console.log(chalk.yellow('\nCreate a profile first!'));
+      return;
+    }
+
+    const { path: mappingPath, profileId } = await inquirer.prompt([
+      { type: 'input', name: 'path', message: 'Directory path:', default: process.cwd(), filter: val => path.resolve(val) },
+      { type: 'list', name: 'profileId', message: 'Select profile for this path:', choices: profiles.map(p => p.id) }
+    ]);
+
+    const existingIndex = mappings.findIndex(m => m.path === mappingPath);
+    if (existingIndex !== -1) {
+      mappings[existingIndex].profileId = profileId;
+    } else {
+      mappings.push({ path: mappingPath, profileId });
+    }
+
+    manager.savePathMappings(mappings);
+    console.log(chalk.green(`\n✔ Mapping saved: ${mappingPath} will now use ${profileId}.`));
+  } else if (mappingAction === 'remove') {
+    if (mappings.length === 0) {
+      console.log(chalk.yellow('\nNo mappings to remove.'));
+      return;
+    }
+
+    const { toRemove } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'toRemove',
+        message: 'Select mapping to remove:',
+        choices: mappings.map(m => ({ name: `${m.path} (${m.profileId})`, value: m.path }))
+      }
+    ]);
+
+    manager.savePathMappings(mappings.filter(m => m.path !== toRemove));
+    console.log(chalk.green('\n✔ Mapping removed.'));
   }
 }
 
@@ -477,4 +553,37 @@ async function deleteProfile(manager: ProfileManager) {
 
   manager.deleteProfile(profileId);
   console.log(chalk.green(`\nProfile '${profileId}' deleted.`));
+}
+
+async function showCurrentStatus(manager: ProfileManager, engine: GitEngine) {
+  const localEmail = await engine.getLocalConfig('user.email');
+  const localSSH = await engine.getLocalConfig('core.sshCommand');
+  const profiles = manager.getProfiles();
+
+  console.log(chalk.bold.cyan('\n📊 Current Repository Identity:'));
+
+  if (!localEmail) {
+    console.log(chalk.yellow('  No local identity configured. Using global Git defaults.'));
+    return;
+  }
+
+  // Find matching profile
+  const matchingProfile = profiles.find(p => {
+    const emailMatch = p.email === localEmail;
+    if (!p.sshKey) return emailMatch;
+    
+    // Check if SSH command contains the key path
+    const sshMatch = localSSH?.includes(p.sshKey.replace(/\\/g, '/'));
+    return emailMatch && sshMatch;
+  });
+
+  if (matchingProfile) {
+    console.log(`  Profile: ${chalk.bold.green(matchingProfile.id)}`);
+    console.log(`  Identity: ${matchingProfile.name} <${matchingProfile.email}>`);
+    if (matchingProfile.sshKey) console.log(`  SSH Key: ${chalk.dim(matchingProfile.sshKey)}`);
+  } else {
+    console.log(`  Custom Identity: ${chalk.white(localEmail)}`);
+    console.log(chalk.dim('  (No matching Git-Mod profile found for this configuration)'));
+  }
+  console.log('');
 }

@@ -45,6 +45,24 @@ The ultimate "Undo" button. Browse your repository's history (reflog) and instan
 ### 🏹 Hunt (`git mod hunt`)
 A high-level wizard for `git bisect`. Visually navigate through your recent commits to find the exact change that introduced a bug.
 
+### ⏪ Rollback (`git mod rollback [commit]`)
+The definitive time machine. Revert your branch to any previous commit.
+- **Interactive Selection**: If no commit is provided, choose from a visual list of recent history.
+- **Smart Modes**: Choose between `Mixed` (keep changes), `Soft` (keep staged), or `Hard` (clean slate).
+
+### 🤝 Smart Merge (`git mod merge`)
+- **Interactive Integration**: Select branches to merge through a friendly menu.
+- **Squash & Merge**: Easily combine an entire branch's history into a single clean commit.
+
+### 📦 Stash Manager (`git mod stash`)
+Visual management of your stashed changes. List, apply, pop, or drop stashes without memorizing indices.
+
+### 📐 Sparse-Checkout Wizard (`git mod sparse`)
+Optimize large repositories by only checking out the directories you need.
+
+### 🛠️ Optimize (`git mod optimize`)
+Keep your repository healthy with automated cleanup and maintenance tasks.
+
 ### 🌳 Worktree Manager (`git mod worktree`)
 Context switching made easy. List, add, and remove Git worktrees to work on multiple branches simultaneously in different directories.
 
