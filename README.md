@@ -1,73 +1,32 @@
 # Git-Mod 🚀
 
-**Git-Mod** is a powerful CLI supercharger for Git, designed to streamline advanced workflows, manage multiple identities, and provide interactive tools for repository maintenance.
-
-It wraps complex Git operations into friendly, interactive commands while adding professional features like identity profiling and smart initialization.
+**Git-Mod** is a powerful CLI supercharger for Git. It wraps complex Git operations into friendly, interactive commands, adds professional features like intelligent identity auto-switching, and saves you from common repository disasters.
 
 ---
 
-## 🌟 Key Features
+## 🌟 Superpowers
 
-### 👤 Identity Profiles (`git mod profile`)
-- **Interactive Management**: Add, edit, list, and delete profiles through a friendly interactive menu.
-- **No URL Aliases Needed**: Keep using standard URLs like `git@github.com:user/repo.git`. No need to change them to `git@github-work:...`.
-- **Localized Config**: Applies identity (`user.name`, `user.email`) locally to the repository or globally.
-- **Smart SSH Isolation**: Uses `core.sshCommand` to ensure each repo uses the correct private key without global SSH config hacks.
-- **Native Signing**: Support for SSH-based commit signing for that "Verified" badge on GitHub. (Requires uploading your public key to GitHub as an **Authentication Key** for push access, and as a **Signing Key** for the badge).
-- **Dynamic Key Generation**: Built-in wizard to generate secure Ed25519 keys with unique IDs and automatic cleanup of old keys when replaced.
-- **Immediate Sync**: Option to apply profile changes to your repository immediately after editing.
+### 🤖 Magic Identity (Auto-Switch)
+Map specific directories to specific Git identities. Git-Mod automatically switches your local `user.email` and SSH keys the moment you enter a repository. Never accidentally push work code to personal repos again.
 
-> [!TIP]
-> **The Identity Advantage**: Unlike the traditional method that requires editing `~/.ssh/config` and using custom Host aliases, **Git-Mod** overrides the SSH command at the repository level. This means you can have different identities for different projects while using the exact same remote URLs.
+### 🙈 The Oops Fixer
+Accidentally tracked `.env` or `node_modules`? `git mod oops` adds it to your `.gitignore`, untracks it, and automatically amends your last commit to erase the evidence.
 
-> [!TIP]
-> **Privacy First**: If you want to keep your email private on GitHub, use your GitHub-provided "noreply" email (e.g., `123456+username@users.noreply.github.com`). You can find this in your GitHub **Settings > Emails**.
+### ✍️ Conventional Commits Wizard
+Write perfect commits every time with `git mod commit`. A step-by-step wizard guides you through types, scopes, and even adding `Co-authored-by` credits for your teammates.
 
+### 🚑 Ultimate Rescue & Time Travel
+Broke your branch? Use `git mod rollback` to travel back in time, or `git mod rescue` to browse the reflog and restore lost commits instantly.
 
-### 🚀 Smart Initialization (`git mod init`)
-Don't just `git init`, initialize with intelligence.
-- **Guided .gitignore**: Interactive selection of templates (Node.js, Python, Go, Universal).
-- **Lockfile Policy**: Choose whether to ignore lock files based on your team's workflow.
-- **Safe Init**: Detects existing repositories and focuses on configuration.
+---
 
-### ✨ Super-Sync (`git mod sync`)
-Keep your local repository perfectly aligned with the remote in one go.
-- Fetches all remotes and prunes stale tracking branches.
-- Rebases current branch onto its upstream.
-- Recursively initializes and updates submodules.
+## 📚 Documentation
 
-### 🧹 Interactive Cleanup (`git mod clean`)
-Keep your branch list tidy. Interactively scan and remove branches that have been merged or deleted on the remote.
+The full power of Git-Mod is detailed in our documentation. Dive in to learn more:
 
-### 🚑 Rescue (`git mod rescue`)
-The ultimate "Undo" button. Browse your repository's history (reflog) and instantly restore it to any previous state via hard reset or by creating a rescue branch.
-
-### 🏹 Hunt (`git mod hunt`)
-A high-level wizard for `git bisect`. Visually navigate through your recent commits to find the exact change that introduced a bug.
-
-### ⏪ Rollback (`git mod rollback [commit]`)
-The definitive time machine. Revert your branch to any previous commit.
-- **Interactive Selection**: If no commit is provided, choose from a visual list of recent history.
-- **Smart Modes**: Choose between `Mixed` (keep changes), `Soft` (keep staged), or `Hard` (clean slate).
-
-### 🤝 Smart Merge (`git mod merge`)
-- **Interactive Integration**: Select branches to merge through a friendly menu.
-- **Squash & Merge**: Easily combine an entire branch's history into a single clean commit.
-
-### 📦 Stash Manager (`git mod stash`)
-Visual management of your stashed changes. List, apply, pop, or drop stashes without memorizing indices.
-
-### 📐 Sparse-Checkout Wizard (`git mod sparse`)
-Optimize large repositories by only checking out the directories you need.
-
-### 🛠️ Optimize (`git mod optimize`)
-Keep your repository healthy with automated cleanup and maintenance tasks.
-
-### 🌳 Worktree Manager (`git mod worktree`)
-Context switching made easy. List, add, and remove Git worktrees to work on multiple branches simultaneously in different directories.
-
-### 🌐 Remote Manager (`git mod remote`)
-Interactively manage your repository remotes and link them to your identity profiles in one flow.
+- 👤 **[Identity & Configuration](doc/identity.md)**: Profiles, SSH isolation, Magic Auto-Switch, and Smart Init.
+- 🛠️ **[Daily Workflow](doc/daily-workflow.md)**: Commits, Status Dashboards, Merge/Squash, Stashes, and the Oops Fixer.
+- 🚀 **[Advanced Operations](doc/advanced.md)**: Rescue, Bisect/Hunt, Checkpoints, Subtrees, Worktrees, and Repo Optimization.
 
 ---
 
@@ -78,12 +37,13 @@ Install **Git-Mod** globally via npm:
 ```bash
 npm install -g git-mod
 ```
-
-Or run it instantly without installing:
-
 ```bash
-npx git-mod init
+pnpm install -g git-mod
 ```
+```bash
+bun install -g git-mod
+```
+
 
 ---
 
@@ -97,21 +57,15 @@ npx git-mod init
    ```bash
    git mod profile add
    ```
-3. **Apply a profile locally**:
+3. **Map your Magic Identity (Auto-Switch)**:
    ```bash
-   git mod profile use
+   git mod profile
+   # Select "Manage Path Mappings"
    ```
-
----
-
-## 📖 Usage
-
-Invoke the mod using:
-```bash
-git mod <command>
-```
-
-Run `git mod --help` for a full list of available commands and options.
+4. **Write your first perfect commit**:
+   ```bash
+   git mod commit
+   ```
 
 ---
 
@@ -134,6 +88,3 @@ Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) fo
 <a href="https://github.com/jmaxdev/git-mod/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=jmaxdev/git-mod" />
 </a>
-
----
-
