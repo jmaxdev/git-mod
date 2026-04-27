@@ -19,6 +19,7 @@ import { commitCommand } from '../src/commands/commit.ts';
 import { checkpointCommand } from '../src/commands/checkpoint.ts';
 import { subtreeCommand } from '../src/commands/subtree.ts';
 import { statusCommand } from '../src/commands/status.ts';
+import { ignoreCommand } from '../src/commands/ignore.ts';
 import { logger } from '../src/utils/logger.ts';
 import { ProfileManager } from '../src/core/profile-manager.ts';
 import { GitEngine } from '../src/core/git-engine.ts';
@@ -132,6 +133,12 @@ program
   .command('status')
   .description('Fancy repository status dashboard')
   .action(statusCommand);
+
+program
+  .command('ignore [path]')
+  .alias('oops')
+  .description('Untrack a file/folder, add it to .gitignore, and optionally amend the last commit')
+  .action(ignoreCommand);
 
 async function checkAutoSwitch() {
   const profileManager = new ProfileManager();
