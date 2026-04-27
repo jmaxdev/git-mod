@@ -267,4 +267,28 @@ export class GitEngine {
   async getStagedDiffStat(): Promise<string> {
     return await this.git.raw(['diff', '--cached', '--stat']);
   }
+
+  async getLatestTag(): Promise<string | null> {
+    try {
+      const tags = await this.git.tags();
+      return tags.latest || null;
+    } catch {
+      return null;
+    }
+  }
+
+  async getCommitsSinceLastTag(): Promise<any[]> {
+    const latestTag = await this.getLatestTag();
+    try {
+      // If we have a tag, get commits since that tag. Otherwise, get all commits.
+      const log = latestTag ? await this.git.log({ from: latestTag, to: 'HEAD' }) : await this.git.log();
+      return log.all;
+    } catch {
+      return [];
+    }
+  }
+
+  async createVersionTag(version: string, message: string) {
+    await this.git.addAnnotatedTag(version, message);
+  }
 }

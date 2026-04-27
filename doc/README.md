@@ -19,6 +19,7 @@ Commands you'll use every day to keep your work organized.
 - `git mod merge`: Smart merge with squash options.
 - `git mod rollback`: The definitive time machine.
 - `git mod ignore` / `oops`: The oops fixer for accidentally tracked files.
+- `git mod changelog`: Generate CHANGELOG.md from Conventional Commits.
 
 ## 🚀 [Advanced Operations](advanced.md)
 Heavy-duty commands for complex repositories and fixing major issues.

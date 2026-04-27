@@ -23,6 +23,9 @@ You no longer need to remember to run `git mod profile` in every new repository.
 
 Now, whenever you run **any** `git mod` command inside `C:\Work` (or any of its subdirectories), Git-Mod will automatically switch your local Git config to use `work-profile`.
 
+> [!TIP]
+> You can enable or disable this automatic behavior globally using the `git mod config` command.
+
 ## `git mod remote`
 
 Interactively manage your repository remotes.

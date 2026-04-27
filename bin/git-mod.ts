@@ -20,6 +20,8 @@ import { checkpointCommand } from '../src/commands/checkpoint.ts';
 import { subtreeCommand } from '../src/commands/subtree.ts';
 import { statusCommand } from '../src/commands/status.ts';
 import { ignoreCommand } from '../src/commands/ignore.ts';
+import { changelogCommand } from '../src/commands/changelog.ts';
+import { configCommand } from '../src/commands/config.ts';
 import { logger } from '../src/utils/logger.ts';
 import { ProfileManager } from '../src/core/profile-manager.ts';
 import { GitEngine } from '../src/core/git-engine.ts';
@@ -139,6 +141,16 @@ program
   .alias('oops')
   .description('Untrack a file/folder, add it to .gitignore, and optionally amend the last commit')
   .action(ignoreCommand);
+
+program
+  .command('changelog')
+  .description('Generate CHANGELOG.md from Conventional Commits since the last tag')
+  .action(changelogCommand);
+
+program
+  .command('config')
+  .description('Manage Git-Mod persistent configuration')
+  .action(configCommand);
 
 async function checkAutoSwitch() {
   const profileManager = new ProfileManager();

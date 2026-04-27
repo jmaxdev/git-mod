@@ -1,9 +1,14 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
+import fs from 'fs';
+import path from 'path';
 import { execSync } from 'child_process';
+import { ConfigManager } from '../core/config-manager.ts';
+import { updateChangelog } from '../utils/changelog-utils.ts';
 
 export async function commitCommand() {
+  const config = new ConfigManager();
   console.log(chalk.bold.cyan('\n✍️ Git-Mod Commit: Conventional Wizard'));
 
   const types = [
@@ -82,24 +87,41 @@ export async function commitCommand() {
         type: 'confirm',
         name: 'hasCoAuthors',
         message: 'Are there any co-authors for this commit?',
-        default: false
+        default: (config.get('defaultCoAuthors') || []).length > 0
       }
     ]);
 
     let coAuthorStrings: string[] = [];
     if (hasCoAuthors) {
-      let addingMore = true;
-      while (addingMore) {
-        const { name, email } = await inquirer.prompt([
-          { type: 'input', name: 'name', message: 'Co-author name:', validate: (val) => !!val },
-          { type: 'input', name: 'email', message: 'Co-author email:', validate: (val) => !!val }
+      const defaults = config.get('defaultCoAuthors') || [];
+      if (defaults.length > 0) {
+        const { useDefaults } = await inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'useDefaults',
+            message: `Use default co-authors? (${defaults.join(', ')})`,
+            default: true
+          }
         ]);
-        coAuthorStrings.push(`Co-authored-by: ${name} <${email}>`);
-        
-        const { more } = await inquirer.prompt([
-          { type: 'confirm', name: 'more', message: 'Add another co-author?', default: false }
-        ]);
-        addingMore = more;
+        if (useDefaults) {
+          coAuthorStrings = [...defaults.map(a => `Co-authored-by: ${a}`)];
+        }
+      }
+
+      if (coAuthorStrings.length === 0 || (await inquirer.prompt([{ type: 'confirm', name: 'addMore', message: 'Add more co-authors?', default: false }])).addMore) {
+        let addingMore = true;
+        while (addingMore) {
+          const { name, email } = await inquirer.prompt([
+            { type: 'input', name: 'name', message: 'Co-author name:', validate: (val) => !!val },
+            { type: 'input', name: 'email', message: 'Co-author email:', validate: (val) => !!val }
+          ]);
+          coAuthorStrings.push(`Co-authored-by: ${name} <${email}>`);
+          
+          const { more } = await inquirer.prompt([
+            { type: 'confirm', name: 'more', message: 'Add another co-author?', default: false }
+          ]);
+          addingMore = more;
+        }
       }
     }
 
@@ -134,20 +156,95 @@ export async function commitCommand() {
         execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, { stdio: 'pipe' });
         spinner.succeed(chalk.green('Changes committed successfully!'));
 
-        const { shouldPush } = await inquirer.prompt([
-          {
-            type: 'confirm',
-            name: 'shouldPush',
-            message: 'Do you want to push these changes now?',
-            default: true
+        // Handle auto-changelog
+        let shouldUpdateChangelog = false;
+        const autoChangelogCfg = config.get('autoChangelog') || 'ask';
+
+        if (autoChangelogCfg === 'always') {
+          shouldUpdateChangelog = true;
+        } else if (autoChangelogCfg === 'ask') {
+          const { res } = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'res',
+              message: 'Do you want to add this commit to CHANGELOG.md?',
+              default: true
+            }
+          ]);
+          shouldUpdateChangelog = res;
+        }
+
+        if (shouldUpdateChangelog) {
+          const changelogSpinner = ora('Updating CHANGELOG.md...').start();
+          try {
+            const lastHash = execSync('git rev-parse --short HEAD').toString().trim();
+            const pkgPath = path.join(process.cwd(), 'package.json');
+            let version = 'Unreleased';
+            if (fs.existsSync(pkgPath)) {
+              version = JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
+            }
+            
+            updateChangelog(version, message, lastHash);
+            execSync('git add CHANGELOG.md');
+            execSync('git commit --amend --no-edit');
+            changelogSpinner.succeed(chalk.green('CHANGELOG.md updated and commit amended.'));
+          } catch (e: any) {
+            changelogSpinner.fail(chalk.red('Failed to update CHANGELOG.md.'));
+            console.error(chalk.dim(e.message));
           }
-        ]);
+        }
+
+        let shouldPush = config.get('autoPush');
+        if (shouldPush === undefined) {
+          const res = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'shouldPush',
+              message: 'Do you want to push these changes now?',
+              default: true
+            }
+          ]);
+          shouldPush = res.shouldPush;
+        }
 
         if (shouldPush) {
+          let shouldTag = config.get('tagAfterCommit');
+          let versionTag = '';
+
+          if (shouldTag !== false) {
+            const pkgPath = path.join(process.cwd(), 'package.json');
+            if (fs.existsSync(pkgPath)) {
+              try {
+                const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+                const pkgVersion = `v${pkg.version}`;
+                const res = await inquirer.prompt([
+                  {
+                    type: 'confirm',
+                    name: 'shouldTag',
+                    message: `Create and push tag ${chalk.cyan(pkgVersion)} for this commit?`,
+                    default: !!config.get('tagAfterCommit')
+                  }
+                ]);
+                if (res.shouldTag) {
+                  shouldTag = true;
+                  versionTag = pkgVersion;
+                } else {
+                  shouldTag = false;
+                }
+              } catch (e) {}
+            }
+          }
+
           const pushSpinner = ora('Pushing to remote...').start();
           try {
-            execSync('git push', { stdio: 'pipe' });
-            pushSpinner.succeed(chalk.green('Pushed successfully!'));
+            if (shouldTag && versionTag) {
+              execSync(`git tag -a ${versionTag} -m "Release ${versionTag}"`, { stdio: 'pipe' });
+              execSync('git push --follow-tags', { stdio: 'pipe' });
+              pushSpinner.succeed(chalk.green(`Pushed successfully with tag ${versionTag}!`));
+            } else {
+              execSync('git push', { stdio: 'pipe' });
+              pushSpinner.succeed(chalk.green('Pushed successfully!'));
+            }
           } catch (e: any) {
             pushSpinner.fail(chalk.red('Push failed.'));
             console.error(chalk.dim(e.stderr?.toString() || e.message));

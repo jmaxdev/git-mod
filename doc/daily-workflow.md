@@ -7,22 +7,44 @@ These are the commands you will use every day to interact with your codebase, ma
 A Conventional Commits wizard that ensures your history is readable and standardized.
 - **Integrated Workflow**: Optionally stage all changes (`git add .`) before starting.
 - **Guided Prompts**: Select the type (`feat`, `fix`, `chore`, etc.), scope, and subject.
-- **Co-Authors**: Easily add `Co-authored-by` trailers to give credit to your team.
+- **Co-Authors**: Easily add `Co-authored-by` trailers. If you have default co-authors configured via `git mod config`, you can select them with one click.
+- **Smart Versioning**: After committing, if you choose to push, Git-Mod will detect your `package.json` and offer to create a matching Git tag (e.g., `v1.2.3`).
+- **Auto-Changelog Integration**: Optionally add the commit directly to your `CHANGELOG.md` without leaving the wizard.
 - **Auto-Push**: Optionally push to the remote immediately after a successful commit.
+
+## `git mod changelog`
+
+Generate a professional `CHANGELOG.md` in seconds.
+- **History Analysis**: Scans all commits since your last Git tag.
+- **Semantic Classification**: Groups commits into Features, Bug Fixes, and Breaking Changes.
+- **Interactive Versioning**: Prompts for the next version number and handles the `v` prefix automatically.
+- **Release Ready**: Updates the file and creates the corresponding Git tag for you.
 
 ## `git mod status`
 
-A fancy, boxed dashboard that gives you a bird's-eye view of your repository.
-- Shows your active identity and whether a Magic Identity mapping is in effect.
-- Displays the current branch, number of stashes, and active worktrees.
-- Provides a clean `diff --stat` view of staged and unstaged changes.
+A beautiful, high-level dashboard of your repository state.
+- **Identity Check**: Quickly see which profile is currently active and which email/GPG key is being used.
+- **Repo Stats**: Summary of branches, stashes, and worktrees.
+- **Dirty State**: At-a-glance view of modified or untracked files.
 
-## `git mod ignore` (or `git mod oops`)
+## `git mod rollback`
 
-The **Oops Fixer**. Did you accidentally track a `.env` file or a massive `node_modules` folder?
-- Adds the path to `.gitignore` automatically.
-- Runs `git rm -r --cached` to untrack the file without deleting it from your disk.
-- **Auto-Amend**: If you made the mistake in your very last commit, it offers to automatically `commit --amend` to erase the evidence from your Git history.
+The "oops" button for your commits.
+- **Multiple Modes**: Choose between `Soft`, `Mixed`, or `Hard` resets.
+- **Interactive UI**: Select how far back you want to go without remembering SHA hashes.
+
+## `git mod ignore` (alias `oops`)
+
+The surgical tool for cleaning up your repository.
+- **Untrack & Ignore**: Removes files from Git tracking without deleting them from your disk, and optionally adds them to `.gitignore`.
+- **History Eraser**: If you accidentally committed a secret or a huge folder, use the `Auto-Amend` feature to erase it from the last commit as if it never happened.
+
+## `git mod config`
+
+Personalize your Git-Mod experience. Persistent settings are stored in `~/.gitmodrc`.
+- **Workflow Automation**: Toggle `autoPush`, `tagAfterCommit`, and `autoChangelog` behavior.
+- **Default Co-Authors**: Manage a list of teammates you frequently pair with.
+- **Identity Logic**: Toggle the `autoSwitch` magic identity behavior.
 
 ## `git mod stash`
 
@@ -36,12 +58,3 @@ Smart, interactive merging.
 - Lists available branches to merge into your current branch.
 - **Standard Merge**: Performs a regular merge.
 - **Squash & Merge**: Combines all changes from the target branch into a single, clean commit on your current branch.
-
-## `git mod rollback [commit]`
-
-The definitive time machine. Revert your branch to any previous commit.
-- **Interactive Selection**: If no commit hash is provided, choose from a visual list of your recent history.
-- **Smart Modes**: Choose between:
-  - `Mixed`: Keep changes in your working directory, but unstage them.
-  - `Soft`: Keep changes staged and ready to commit.
-  - `Hard`: Clean slate. Destroy all changes and match the commit exactly.
