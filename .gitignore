@@ -13,3 +13,7 @@ bun.lockb
 *-lock
 .tmp
 .agents/
+
+secreto.txt
+
+.\skills-lock.json

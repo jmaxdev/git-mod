@@ -52,7 +52,7 @@ export async function commitCommand() {
 
     if (type === 'exit') return;
 
-    const { scope, subject, body, isBreaking } = await inquirer.prompt([
+    const { scope, subject, body, isBreaking, hasCoAuthors } = await inquirer.prompt([
       {
         type: 'input',
         name: 'scope',
@@ -77,8 +77,31 @@ export async function commitCommand() {
         name: 'isBreaking',
         message: 'Are there any breaking changes?',
         default: false
+      },
+      {
+        type: 'confirm',
+        name: 'hasCoAuthors',
+        message: 'Are there any co-authors for this commit?',
+        default: false
       }
     ]);
+
+    let coAuthorStrings: string[] = [];
+    if (hasCoAuthors) {
+      let addingMore = true;
+      while (addingMore) {
+        const { name, email } = await inquirer.prompt([
+          { type: 'input', name: 'name', message: 'Co-author name:', validate: (val) => !!val },
+          { type: 'input', name: 'email', message: 'Co-author email:', validate: (val) => !!val }
+        ]);
+        coAuthorStrings.push(`Co-authored-by: ${name} <${email}>`);
+        
+        const { more } = await inquirer.prompt([
+          { type: 'confirm', name: 'more', message: 'Add another co-author?', default: false }
+        ]);
+        addingMore = more;
+      }
+    }
 
     let message = `${type}${scope ? `(${scope})` : ''}${isBreaking ? '!' : ''}: ${subject}`;
     if (body) {
@@ -86,6 +109,9 @@ export async function commitCommand() {
     }
     if (isBreaking) {
       message += `\n\nBREAKING CHANGE: ${body || 'A major change was made.'}`;
+    }
+    if (coAuthorStrings.length > 0) {
+      message += `\n\n${coAuthorStrings.join('\n')}`;
     }
 
     console.log(chalk.bold('\nGenerated Commit Message:'));
