@@ -1,6 +1,6 @@
 {
   "name": "git-mod",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A powerful CLI supercharger for Git, designed to streamline advanced workflows and manage multiple identities.",
   "repository": {
     "type": "git",

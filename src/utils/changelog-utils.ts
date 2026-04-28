@@ -8,12 +8,14 @@ export function updateChangelog(version: string, commitMessage: string, commitHa
   const hash = commitHash.substring(0, 7);
   const firstLine = commitMessage.split('\n')[0];
 
-  let type: 'Features' | 'Bug Fixes' | 'Breaking Changes' | 'Other Changes' = 'Other Changes';
+  let type: 'Features' | 'Improvements' | 'Bug Fixes' | 'Breaking Changes' | 'Other Changes' = 'Other Changes';
   
   if (commitMessage.includes('BREAKING CHANGE:') || commitMessage.match(/^[a-z]+(\([a-z-]+\))?!:/)) {
     type = 'Breaking Changes';
   } else if (commitMessage.startsWith('feat') || commitMessage.startsWith('✨ feat')) {
     type = 'Features';
+  } else if (commitMessage.startsWith('improvement') || commitMessage.startsWith('🚀 improvement')) {
+    type = 'Improvements';
   } else if (commitMessage.startsWith('fix') || commitMessage.startsWith('🐛 fix')) {
     type = 'Bug Fixes';
   }
@@ -36,8 +38,8 @@ export function updateChangelog(version: string, commitMessage: string, commitHa
     const sectionEnd = nextVersionStart === -1 ? content.length : sectionStart + 1 + nextVersionStart;
     const section = content.slice(sectionStart, sectionEnd);
 
-    const subSectionRegex = new RegExp(`### (✨ |🐛 |💥 |🔧 )?${type}`, 'i');
-    const icons: any = { 'Features': '✨ ', 'Bug Fixes': '🐛 ', 'Breaking Changes': '💥 ', 'Other Changes': '🔧 ' };
+    const subSectionRegex = new RegExp(`### (✨ |🚀 |🐛 |💥 |🔧 )?${type}`, 'i');
+    const icons: any = { 'Features': '✨ ', 'Improvements': '🚀 ', 'Bug Fixes': '🐛 ', 'Breaking Changes': '💥 ', 'Other Changes': '🔧 ' };
     const icon = icons[type] || '';
 
     if (subSectionRegex.test(section)) {
@@ -56,7 +58,8 @@ export function updateChangelog(version: string, commitMessage: string, commitHa
     }
   } else {
     // Version section doesn't exist, create it at the top
-    const header = `## [${version}] - ${date}\n\n### ${type === 'Features' ? '✨ ' : type === 'Bug Fixes' ? '🐛 ' : type === 'Breaking Changes' ? '💥 ' : '🔧 '}${type}\n${entry}\n\n`;
+    const icon = type === 'Features' ? '✨ ' : type === 'Improvements' ? '🚀 ' : type === 'Bug Fixes' ? '🐛 ' : type === 'Breaking Changes' ? '💥 ' : '🔧 ';
+    const header = `## [${version}] - ${date}\n\n### ${icon}${type}\n${entry}\n\n`;
     const changelogHeader = '# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n';
     
     if (content.startsWith(changelogHeader)) {

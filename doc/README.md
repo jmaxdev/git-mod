@@ -10,6 +10,7 @@ Everything related to who you are in your repositories.
 - **🤖 Magic Identity**: How to auto-switch identities based on directory paths.
 - `git mod remote`: Remote repository management.
 - `git mod init`: Smart initialization.
+- `git mod config`: Persistent tool configuration.
 
 ## 🛠️ [Daily Workflow](daily-workflow.md)
 Commands you'll use every day to keep your work organized.

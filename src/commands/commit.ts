@@ -5,14 +5,18 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { ConfigManager } from '../core/config-manager.ts';
+import { GitEngine } from '../core/git-engine.ts';
 import { updateChangelog } from '../utils/changelog-utils.ts';
+import { incrementVersion } from '../utils/semver-utils.ts';
 
 export async function commitCommand() {
   const config = new ConfigManager();
+  const engine = new GitEngine();
   console.log(chalk.bold.cyan('\n✍️ Git-Mod Commit: Conventional Wizard'));
 
   const types = [
     { name: '✨ feat:     A new feature', value: 'feat' },
+    { name: '🚀 improvement: An improvement to an existing feature', value: 'improvement' },
     { name: '🐛 fix:      A bug fix', value: 'fix' },
     { name: '📝 docs:     Documentation only changes', value: 'docs' },
     { name: '💄 style:    Changes that do not affect the meaning of the code', value: 'style' },
@@ -156,7 +160,48 @@ export async function commitCommand() {
         execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, { stdio: 'pipe' });
         spinner.succeed(chalk.green('Changes committed successfully!'));
 
-        // Handle auto-changelog
+        // 1. Versioning Decision
+        let finalVersion = '';
+        let versionTag = '';
+        const pkgPath = path.join(process.cwd(), 'package.json');
+        let pkg: any = null;
+
+        if (fs.existsSync(pkgPath)) {
+          try {
+            pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+            const currentVersion = pkg.version;
+
+            const { releaseType } = await inquirer.prompt([
+              {
+                type: 'list',
+                name: 'releaseType',
+                message: 'Do you want to release a new version?',
+                choices: [
+                  { name: 'None (Keep current)', value: 'none' },
+                  { name: `Patch (${incrementVersion(currentVersion, 'patch')})`, value: 'patch' },
+                  { name: `Minor (${incrementVersion(currentVersion, 'minor')})`, value: 'minor' },
+                  { name: `Major (${incrementVersion(currentVersion, 'major')})`, value: 'major' },
+                ]
+              }
+            ]);
+
+            if (releaseType !== 'none') {
+              finalVersion = incrementVersion(currentVersion, releaseType as any);
+              versionTag = `v${finalVersion}`;
+              
+              // Update package.json
+              pkg.version = finalVersion;
+              fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+              ora().succeed(chalk.green(`Version bumped to ${finalVersion} in package.json`));
+            } else {
+              finalVersion = currentVersion;
+            }
+          } catch (e: any) {
+            console.error(chalk.yellow('Could not read/update package.json for versioning.'));
+          }
+        }
+
+        // 2. Changelog Decision
         let shouldUpdateChangelog = false;
         const autoChangelogCfg = config.get('autoChangelog') || 'ask';
 
@@ -174,26 +219,29 @@ export async function commitCommand() {
           shouldUpdateChangelog = res;
         }
 
+        let amended = false;
         if (shouldUpdateChangelog) {
           const changelogSpinner = ora('Updating CHANGELOG.md...').start();
           try {
             const lastHash = execSync('git rev-parse --short HEAD').toString().trim();
-            const pkgPath = path.join(process.cwd(), 'package.json');
-            let version = 'Unreleased';
-            if (fs.existsSync(pkgPath)) {
-              version = JSON.parse(fs.readFileSync(pkgPath, 'utf8')).version;
-            }
-            
-            updateChangelog(version, message, lastHash);
+            updateChangelog(finalVersion || 'Unreleased', message, lastHash);
             execSync('git add CHANGELOG.md');
+            if (pkg) execSync('git add package.json');
             execSync('git commit --amend --no-edit');
+            amended = true;
             changelogSpinner.succeed(chalk.green('CHANGELOG.md updated and commit amended.'));
           } catch (e: any) {
             changelogSpinner.fail(chalk.red('Failed to update CHANGELOG.md.'));
             console.error(chalk.dim(e.message));
           }
+        } else if (versionTag) {
+          // If we didn't update changelog but we did update package.json, we still need to amend
+          execSync('git add package.json');
+          execSync('git commit --amend --no-edit');
+          amended = true;
         }
 
+        // 3. Tagging & Pushing
         let shouldPush = config.get('autoPush');
         if (shouldPush === undefined) {
           const res = await inquirer.prompt([
@@ -208,37 +256,10 @@ export async function commitCommand() {
         }
 
         if (shouldPush) {
-          let shouldTag = config.get('tagAfterCommit');
-          let versionTag = '';
-
-          if (shouldTag !== false) {
-            const pkgPath = path.join(process.cwd(), 'package.json');
-            if (fs.existsSync(pkgPath)) {
-              try {
-                const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-                const pkgVersion = `v${pkg.version}`;
-                const res = await inquirer.prompt([
-                  {
-                    type: 'confirm',
-                    name: 'shouldTag',
-                    message: `Create and push tag ${chalk.cyan(pkgVersion)} for this commit?`,
-                    default: !!config.get('tagAfterCommit')
-                  }
-                ]);
-                if (res.shouldTag) {
-                  shouldTag = true;
-                  versionTag = pkgVersion;
-                } else {
-                  shouldTag = false;
-                }
-              } catch (e) {}
-            }
-          }
-
           const pushSpinner = ora('Pushing to remote...').start();
           try {
-            if (shouldTag && versionTag) {
-              execSync(`git tag -a ${versionTag} -m "Release ${versionTag}"`, { stdio: 'pipe' });
+            if (versionTag) {
+              await engine.createVersionTag(versionTag, `Release ${versionTag}`);
               execSync('git push --follow-tags', { stdio: 'pipe' });
               pushSpinner.succeed(chalk.green(`Pushed successfully with tag ${versionTag}!`));
             } else {

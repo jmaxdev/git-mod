@@ -6,11 +6,12 @@ These are the commands you will use every day to interact with your codebase, ma
 
 A Conventional Commits wizard that ensures your history is readable and standardized.
 - **Integrated Workflow**: Optionally stage all changes (`git add .`) before starting.
-- **Guided Prompts**: Select the type (`feat`, `fix`, `chore`, etc.), scope, and subject.
+- **Guided Prompts**: Select the type (`feat`, `improvement`, `fix`, `chore`, etc.), scope, and subject.
 - **Co-Authors**: Easily add `Co-authored-by` trailers. If you have default co-authors configured via `git mod config`, you can select them with one click.
-- **Smart Versioning**: After committing, if you choose to push, Git-Mod will detect your `package.json` and offer to create a matching Git tag (e.g., `v1.2.3`).
-- **Auto-Changelog Integration**: Optionally add the commit directly to your `CHANGELOG.md` without leaving the wizard.
-- **Auto-Push**: Optionally push to the remote immediately after a successful commit.
+- **Semantic Versioning**: After committing, if you choose to push, Git-Mod will detect your `package.json` and offer to increment your version (**Major**, **Minor**, or **Patch**). It automatically updates your `package.json`.
+- **Integrated Changelog**: Once a version is selected, Git-Mod offers to add the new commit directly to `CHANGELOG.md` under the new version header.
+- **Auto-Amend**: Both the version bump in `package.json` and the `CHANGELOG.md` update are automatically amended into your last commit, keeping your history clean and atomic.
+- **Auto-Push & Tagging**: Optionally push to the remote immediately, automatically creating and pushing the Git tag (e.g., `v1.2.3`) alongside your commit.
 
 ## `git mod changelog`
 
