@@ -73,8 +73,8 @@ async function addRemote(engine: GitEngine) {
     ]);
 
     if (configureProfile) {
-      // We can reuse the profileCommand or just call its internal 'use' logic
-      // For simplicity, let's just trigger the main profile menu
+      
+      
       console.log(chalk.cyan('\nOpening Profile Manager...'));
       await profileCommand();
     }

@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'fs';
-import path from 'path';
+
 import { execSync } from 'child_process';
 
 const TEMPLATES: Record<string, string> = {
@@ -15,7 +15,7 @@ const TEMPLATES: Record<string, string> = {
 export async function initCommand() {
   console.log(chalk.bold.cyan('\n🚀 Git-Mod Init: Smart Repository Setup'));
 
-  // 1. Run git init only if needed
+  
   if (!fs.existsSync('.git')) {
     const spinner = ora('Initializing git repository...').start();
     try {
@@ -29,7 +29,7 @@ export async function initCommand() {
     console.log(chalk.dim('ℹ Repository already initialized, skipping git init.'));
   }
 
-  // 2. Check for .gitignore
+  
   if (fs.existsSync('.gitignore')) {
     const { overwrite } = await inquirer.prompt([
       {
@@ -42,7 +42,7 @@ export async function initCommand() {
     if (!overwrite) return;
   }
 
-  // 3. Select template
+  
   const { templateType } = await inquirer.prompt([
     {
       type: 'list',
@@ -56,7 +56,7 @@ export async function initCommand() {
 
   let templateContent = TEMPLATES[templateType];
 
-  // 4. Ask about lock files
+  
   const { ignoreLocks } = await inquirer.prompt([
     {
       type: 'confirm',

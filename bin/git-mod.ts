@@ -23,6 +23,7 @@ import { ignoreCommand } from '../src/commands/ignore.ts';
 import { changelogCommand } from '../src/commands/changelog.ts';
 import { configCommand } from '../src/commands/config.ts';
 import { logger } from '../src/utils/logger.ts';
+import { ConfigManager } from '../src/core/config-manager.ts';
 import { ProfileManager } from '../src/core/profile-manager.ts';
 import { GitEngine } from '../src/core/git-engine.ts';
 import chalk from 'chalk';
@@ -153,6 +154,9 @@ program
   .action(configCommand);
 
 async function checkAutoSwitch() {
+  const config = new ConfigManager();
+  if (config.get('autoSwitch') === false) return;
+
   const profileManager = new ProfileManager();
   const engine = new GitEngine();
   

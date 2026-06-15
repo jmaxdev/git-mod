@@ -25,8 +25,8 @@ export async function switchCommand() {
     ]);
 
     const switchSpinner = ora(`Switching to ${targetBranch}...`).start();
-    // Using native 'git switch' through raw command
-    const git = (engine as any).git; // Access internal git instance
+    
+    const git = (engine as any).git; 
     await git.raw(['switch', targetBranch]);
     switchSpinner.succeed(chalk.green(`Switched to branch '${targetBranch}'`));
   } catch (error: any) {

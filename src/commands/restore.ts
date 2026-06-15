@@ -12,7 +12,7 @@ export async function restoreCommand() {
     const status = await git.status();
     spinner.stop();
 
-    // Files that can be restored (modified, deleted, but not untracked by default for simple restore)
+    
     const restorableFiles = [
       ...status.modified.map((f: string) => ({ name: f, type: 'modified' })),
       ...status.deleted.map((f: string) => ({ name: f, type: 'deleted' })),

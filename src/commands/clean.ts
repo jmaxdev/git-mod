@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
-import { GitEngine, BranchInfo } from '../core/git-engine.ts';
+import { GitEngine } from '../core/git-engine.ts';
 
 export async function cleanCommand() {
   const engine = new GitEngine();
@@ -23,7 +23,7 @@ export async function cleanCommand() {
     const choices = cleanable.map(b => ({
       name: `${b.name} ${chalk.dim(b.isMerged ? '[merged]' : '')} ${chalk.red(b.isGone ? '[gone]' : '')}`,
       value: b.name,
-      checked: b.isMerged || b.isGone // Pre-check the obvious ones
+      checked: b.isMerged || b.isGone 
     }));
 
     const { selectedBranches } = await inquirer.prompt([

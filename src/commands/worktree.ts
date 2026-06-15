@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
-import path from 'path';
+
 import { GitEngine } from '../core/git-engine.ts';
 
 export async function worktreeCommand() {

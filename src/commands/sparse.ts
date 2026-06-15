@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'fs';
-import path from 'path';
+
 import { GitEngine } from '../core/git-engine.ts';
 
 export async function sparseCommand() {
@@ -38,7 +38,7 @@ export async function sparseCommand() {
         currentPatterns.forEach(p => console.log(`${chalk.green('•')} ${p}`));
       }
     } else if (action === 'set') {
-      // Get directories in the current folder to suggest
+      
       const dirs = fs.readdirSync(process.cwd(), { withFileTypes: true })
         .filter(d => d.isDirectory() && !d.name.startsWith('.'))
         .map(d => d.name);
@@ -73,8 +73,8 @@ export async function sparseCommand() {
 
       if (confirm) {
         const spinner = ora('Resetting to full repository...').start();
-        await engine.sparseCheckoutSet(['/*']); // Set to everything
-        // Technically 'git sparse-checkout disable' is better but simple-git raw is easier this way
+        await engine.sparseCheckoutSet(['/*']); 
+        
         spinner.succeed(chalk.green('Repository restored to full-checkout mode.'));
       }
     }

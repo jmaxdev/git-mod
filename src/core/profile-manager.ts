@@ -56,7 +56,7 @@ export class ProfileManager {
     const profiles = this.getProfiles().filter(p => p.id !== id);
     fs.writeFileSync(this.configPath, JSON.stringify(profiles, null, 2));
     
-    // Also cleanup mappings
+    
     const mappings = this.getPathMappings().filter(m => m.profileId !== id);
     this.savePathMappings(mappings);
   }
@@ -80,7 +80,7 @@ export class ProfileManager {
     const mappings = this.getPathMappings();
     const normalizedPath = path.resolve(currentPath).toLowerCase();
     
-    // Find the most specific (longest) path that matches
+    
     const matches = mappings.filter(m => normalizedPath.startsWith(path.resolve(m.path).toLowerCase()));
     if (matches.length === 0) return null;
     

@@ -1,8 +1,7 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
-import fs from 'fs';
-import path from 'path';
+
 import { GitEngine } from '../core/git-engine.ts';
 import { updateChangelog } from '../utils/changelog-utils.ts';
 
@@ -45,9 +44,9 @@ export async function changelogCommand() {
     if (confirm) {
       const changelogSpinner = ora('Updating CHANGELOG.md...').start();
       try {
-        // Sort commits so they appear in a logical order (optional, but good)
-        // Here we just process them. updateChangelog handles the sections.
-        for (const commit of commits.reverse()) {
+        
+        
+        for (const commit of [...commits].reverse()) {
           const isMerge = commit.message.startsWith('Merge branch') || commit.message.startsWith('Merge pull request');
           if (isMerge) continue;
           

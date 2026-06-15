@@ -250,7 +250,7 @@ async function generateSSHKey(id: string, email: string): Promise<string> {
   
   const sshKeyPath = customPath;
 
-  // Handle existing files
+  
   if (fs.existsSync(sshKeyPath)) {
     const { overwrite } = await inquirer.prompt([
       {
@@ -276,7 +276,7 @@ async function generateSSHKey(id: string, email: string): Promise<string> {
     const sshDir = path.dirname(sshKeyPath);
     if (!fs.existsSync(sshDir)) fs.mkdirSync(sshDir, { recursive: true });
 
-    // Try to run ssh-keygen
+    
     execSync(`ssh-keygen -t ed25519 -C "${email}" -f "${sshKeyPath}" -N ""`, { stdio: 'pipe' });
     spinner.succeed(chalk.green('SSH Key generated successfully!'));
 
@@ -343,7 +343,7 @@ async function editProfile(manager: ProfileManager, engine: GitEngine) {
 
   if (sshAction === 'generate') {
     sshKey = await generateSSHKey(profile.id, updates.email);
-    // Automatically delete old keys if a new one was successfully generated
+    
     if (sshKey && oldSshKey && oldSshKey !== sshKey) {
       try {
         if (fs.existsSync(oldSshKey)) fs.unlinkSync(oldSshKey);
@@ -359,7 +359,7 @@ async function editProfile(manager: ProfileManager, engine: GitEngine) {
     ]);
     sshKey = existingPath;
 
-    // For manual replacement, we still ask before deleting
+    
     if (oldSshKey && oldSshKey !== sshKey) {
       const { deleteOld } = await inquirer.prompt([
         {
@@ -567,12 +567,12 @@ async function showCurrentStatus(manager: ProfileManager, engine: GitEngine) {
     return;
   }
 
-  // Find matching profile
+  
   const matchingProfile = profiles.find(p => {
     const emailMatch = p.email === localEmail;
     if (!p.sshKey) return emailMatch;
     
-    // Check if SSH command contains the key path
+    
     const sshMatch = localSSH?.includes(p.sshKey.replace(/\\/g, '/'));
     return emailMatch && sshMatch;
   });

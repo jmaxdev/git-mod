@@ -19,11 +19,11 @@ export class GitEngine {
   }
 
   async getBranches(): Promise<BranchInfo[]> {
-    // Get all local branches with verbosity to see tracking info
+    
     const branchData = await this.git.branch(['-vv']);
     const currentBranch = branchData.current;
 
-    // Get merged branches (to main/master)
+    
     let mergedSet = new Set<string>();
     let mainBranch = '';
     try {
@@ -31,7 +31,7 @@ export class GitEngine {
       const mergedBranchesRaw = await this.git.branch(['--merged', mainBranch]);
       mergedSet = new Set(Object.keys(mergedBranchesRaw.branches));
     } catch (e) {
-      // In empty repos or when main doesn't exist yet, we just skip merged info
+      
     }
 
     const branches: BranchInfo[] = [];
@@ -61,11 +61,11 @@ export class GitEngine {
 
   async deleteBranches(names: string[]) {
     for (const name of names) {
-      await this.git.deleteLocalBranch(name, true); // Force delete since we confirmed
+      await this.git.deleteLocalBranch(name, true); 
     }
   }
 
-  async getReflog(limit: number = 20): Promise<any[]> {
+  async getReflog(limit: number = 20): Promise<{ hash: string; ref: string; index: string; description: string }[]> {
     const log = await this.git.raw(['reflog', `-${limit}`]);
     return log.split('\n').filter(Boolean).map(line => {
       const match = line.match(/^([a-f0-9]+)\s+(HEAD@\{(\d+)\}):\s+(.*)$/);
@@ -78,7 +78,7 @@ export class GitEngine {
         };
       }
       return null;
-    }).filter(Boolean);
+    }).filter(Boolean) as { hash: string; ref: string; index: string; description: string }[];
   }
 
   async restoreState(hash: string, mode: 'reset' | 'checkout', branchName?: string) {
@@ -104,7 +104,7 @@ export class GitEngine {
     await this.git.raw(['bisect', 'reset']);
   }
 
-  async getRecentCommits(limit: number = 20): Promise<any[]> {
+  async getRecentCommits(limit: number = 20): Promise<{ hash: string; message: string; date: string }[]> {
     const log = await this.git.log({ maxCount: limit });
     return log.all.map(c => ({
       hash: c.hash,
@@ -113,10 +113,10 @@ export class GitEngine {
     }));
   }
 
-  async getWorktrees(): Promise<any[]> {
+  async getWorktrees(): Promise<{ path?: string; branch?: string; head?: string }[]> {
     const output = await this.git.raw(['worktree', 'list', '--porcelain']);
-    const worktrees: any[] = [];
-    let current: any = {};
+    const worktrees: { path?: string; branch?: string; head?: string }[] = [];
+    let current: { path?: string; branch?: string; head?: string } = {};
 
     output.split('\n').forEach(line => {
       if (line.startsWith('worktree ')) {
@@ -137,7 +137,7 @@ export class GitEngine {
   }
 
   async removeWorktree(path: string) {
-    await this.git.raw(['worktree', 'prune']); // Pre-prune to be safe
+    await this.git.raw(['worktree', 'prune']); 
     await this.git.raw(['worktree', 'remove', path]);
   }
 
@@ -155,15 +155,15 @@ export class GitEngine {
   }
 
   async setSSHCommand(sshKeyPath: string, scope: 'local' | 'global' = 'local') {
-    // Use -F /dev/null to ignore user's ~/.ssh/config and only use the specified key
-    // This is safer for specific repository identities
+    
+    
     const command = `ssh -i "${sshKeyPath.replace(/\\/g, '/')}" -o "IdentitiesOnly=yes" -F /dev/null`;
     await this.setConfig('core.sshCommand', command, scope);
   }
 
-  // --- New Methods ---
+  
 
-  async getStashes(): Promise<any[]> {
+  async getStashes(): Promise<{ index: number; id: string; message: string; hash: string; date: string }[]> {
     const log = await this.git.stashList();
     return log.all.map((s: any, index: number) => ({
       index,
@@ -207,7 +207,7 @@ export class GitEngine {
     try {
       await this.git.raw(['maintenance', 'run']);
     } catch {
-      // maintenance might not be available in older git versions
+      
     }
   }
 
@@ -236,7 +236,7 @@ export class GitEngine {
     await this.git.merge([branch]);
   }
 
-  async getCommitDetails(hash: string): Promise<any> {
+  async getCommitDetails(hash: string): Promise<string> {
     const show = await this.git.show([hash, '--stat', '--oneline']);
     return show;
   }
@@ -277,10 +277,10 @@ export class GitEngine {
     }
   }
 
-  async getCommitsSinceLastTag(): Promise<any[]> {
+  async getCommitsSinceLastTag(): Promise<readonly any[]> {
     const latestTag = await this.getLatestTag();
     try {
-      // If we have a tag, get commits since that tag. Otherwise, get all commits.
+      
       const log = latestTag ? await this.git.log({ from: latestTag, to: 'HEAD' }) : await this.git.log();
       return log.all;
     } catch {

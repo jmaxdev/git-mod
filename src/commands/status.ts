@@ -16,24 +16,24 @@ export async function statusCommand() {
     const diffStat = await engine.getDiffStat();
     const stagedStat = await engine.getStagedDiffStat();
 
-    // Profile detection
+    
     const profiles = profileManager.getProfiles();
     const matchingProfile = profiles.find(p => p.email === localEmail);
 
     let dashboard = '';
 
-    // Section 1: Identity
+    
     dashboard += chalk.bold.cyan('👤 IDENTITY\n');
     dashboard += `  Profile: ${matchingProfile ? chalk.green(matchingProfile.id) : chalk.yellow('None (Custom)')}\n`;
     dashboard += `  User:    ${localEmail || chalk.red('Not set')}\n\n`;
 
-    // Section 2: Repository
+    
     dashboard += chalk.bold.magenta('📂 REPOSITORY\n');
     dashboard += `  Branch:    ${chalk.bold.white(currentBranch)}\n`;
     dashboard += `  Stashes:   ${stashes.length > 0 ? chalk.yellow(stashes.length) : chalk.dim('0')}\n`;
     dashboard += `  Worktrees: ${worktrees.length > 1 ? chalk.green(worktrees.length) : chalk.dim('1')}\n\n`;
 
-    // Section 3: Changes
+    
     dashboard += chalk.bold.yellow('📝 CHANGES\n');
     if (!diffStat && !stagedStat) {
       dashboard += `  ${chalk.dim('No changes in working directory.')}\n`;

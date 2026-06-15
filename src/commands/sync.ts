@@ -13,7 +13,7 @@ export async function syncCommand(options: SyncOptions) {
   const spinner = ora('Starting super-sync...').start();
 
   try {
-    // 1. Fetch & Prune
+    
     if (options.prune) {
       spinner.text = 'Fetching and pruning remote branches...';
       await git.fetch(['--prune', '--all']);
@@ -24,7 +24,7 @@ export async function syncCommand(options: SyncOptions) {
       spinner.succeed(chalk.green('Fetched from remotes.'));
     }
 
-    // 2. Rebase current branch
+    
     if (options.rebase) {
       spinner.start('Rebasing current branch...');
       try {
@@ -32,7 +32,7 @@ export async function syncCommand(options: SyncOptions) {
         const currentBranch = status.current;
         
         if (currentBranch) {
-          // Check if there's a tracking branch
+          
           const remoteBranch = await git.revparse(['--abbrev-ref', '@{u}']).catch(() => null);
           
           if (remoteBranch) {
@@ -49,7 +49,7 @@ export async function syncCommand(options: SyncOptions) {
       }
     }
 
-    // 3. Update submodules
+    
     spinner.start('Updating submodules...');
     await git.subModule(['update', '--init', '--recursive']);
     spinner.succeed(chalk.green('Submodules updated.'));

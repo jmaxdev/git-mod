@@ -25,7 +25,7 @@ export async function ignoreCommand(targetPath?: string) {
 
     if (!fileToIgnore) return;
 
-    // 1. Add to .gitignore
+    
     const gitignorePath = path.join(process.cwd(), '.gitignore');
     let ignoreExists = false;
     
@@ -55,7 +55,7 @@ export async function ignoreCommand(targetPath?: string) {
       console.log(chalk.yellow(`\nℹ '${fileToIgnore}' is already in .gitignore`));
     }
 
-    // 2. Untrack from git
+    
     const rmSpinner = ora(`Removing '${fileToIgnore}' from Git tracking...`).start();
     try {
       execSync(`git rm -r --cached "${fileToIgnore}"`, { stdio: 'pipe' });
@@ -69,7 +69,7 @@ export async function ignoreCommand(targetPath?: string) {
       }
     }
 
-    // 3. Offer to amend
+    
     const { shouldAmend } = await inquirer.prompt([
       {
         type: 'confirm',

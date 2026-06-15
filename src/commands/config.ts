@@ -13,11 +13,11 @@ export async function configCommand() {
         name: 'action',
         message: 'What do you want to configure?',
         choices: [
-          { name: 'Toggle Auto-Push after commit', value: 'autoPush' },
-          { name: 'Toggle Tagging after commit', value: 'tagAfterCommit' },
-          { name: 'Toggle Identity Auto-Switch', value: 'autoSwitch' },
-          { name: 'Change Auto-Changelog behavior', value: 'autoChangelog' },
-          { name: 'Manage Default Co-Authors', value: 'coauthors' },
+          { name: `Toggle Auto-Push after commit [${config.get('autoPush') ? 'ON' : 'OFF'}]`, value: 'autoPush' },
+          { name: `Toggle Tagging after commit [${config.get('tagAfterCommit') ? 'ON' : 'OFF'}]`, value: 'tagAfterCommit' },
+          { name: `Toggle Identity Auto-Switch [${config.get('autoSwitch') ? 'ON' : 'OFF'}]`, value: 'autoSwitch' },
+          { name: `Change Auto-Changelog behavior [${(config.get('autoChangelog') || 'ask').toUpperCase()}]`, value: 'autoChangelog' },
+          { name: `Manage Default Co-Authors [${(config.get('defaultCoAuthors') || []).length} set]`, value: 'coauthors' },
           { name: 'Exit', value: 'exit' }
         ]
       }

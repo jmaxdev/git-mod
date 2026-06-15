@@ -35,7 +35,7 @@ export async function rollbackCommand(commit?: string) {
       targetHash = selectedCommit;
     }
 
-    // Show details of the target commit
+    
     console.log(chalk.dim('\nTarget state:'));
     const details = await engine.getCommitDetails(targetHash!);
     console.log(chalk.gray(details.split('\n').slice(0, 10).join('\n')));
